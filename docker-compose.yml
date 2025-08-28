@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  swap-optimizer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: swap-optimizer
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+    volumes:      
+      - ./logs:/app/logs
+      - ./.env:/app/.env:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - swap-optimizer-network
+
+  log-viewer:
+    image: alpine:latest
+    container_name: swap-optimizer-logs
+    restart: unless-stopped
+    command: /bin/sh -c "while true; do echo '=== Output Logs ==='; tail -n 20 /logs/output*.log 2>/dev/null || echo 'No output logs yet'; echo '=== Swap Routes ==='; tail -n 10 /logs/swap_routes.json 2>/dev/null || echo 'No swap routes yet'; echo ''; sleep 30; done"
+    volumes:
+      - ./logs:/logs:ro
+    depends_on:
+      - swap-optimizer
+    networks:
+      - swap-optimizer-network
+
+networks:
+  swap-optimizer-network:
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local

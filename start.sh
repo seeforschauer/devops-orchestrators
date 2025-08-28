@@ -40,7 +40,7 @@ npm run build
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 LOGFILE="logs/output_$TIMESTAMP.log"
-npm start 2>&1 >> $LOGFILE
+npm start 2>&1 | tee -a "$LOGFILE"
 
 (
   sleep 300

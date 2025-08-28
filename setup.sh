@@ -70,6 +70,6 @@ if [ ! -f .env ]; then
     fi
 fi
 
-npm run dev &> logs/run.log # 2>&1 only if app add timestamp or graylog itself
+npm run dev  2>&1 | tee -a "$LOGFILE" # 2>&1 only if app add timestamp or graylog itself
 # exit non zero: depends on the application
 
