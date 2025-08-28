@@ -70,5 +70,6 @@ if [ ! -f .env ]; then
     fi
 fi
 
-echo "[Swap Optimizer Setup] Setup complete."
-npm run dev
+npm run dev  2>&1 | tee -a "$LOGFILE" # 2>&1 only if app add timestamp or graylog itself
+# exit non zero: depends on the application
+

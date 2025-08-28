@@ -1,5 +1,31 @@
 #!/bin/bash
 
+LOCKFILE='lock.file'
+
+echo "[Swap Optimizer Setup] Setup complete."
+
+if [ -f ${LOCKFILE} ]
+then
+    echo "Check pid alive!"
+    PID=`/bin/cat ${LOCKFILE}`
+    if ps -p ${PID} > /dev/null
+    then
+        echo "${PID} is running, so skip, bye."
+        exit 0
+    else
+        echo "${PID} is dead, delete ${LOCKFILE}"
+        rm -f ${LOCKFILE}
+    fi
+fi
+
+echo $$ > $LOCKFILE
+
+if [ ! -f ${LOCKFILE} ]
+then
+    echo "Create lock file failed!"
+    exit 1
+fi
+
 echo "[Swap Optimizer] Starting the path-finder service..."
 
 # Ensure .env exists
@@ -10,7 +36,11 @@ fi
 
 # Run orchestrator logic
 echo "[Swap Optimizer] Starting orchestrator..."
-npm run build & npm start &
+npm run build
+
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+LOGFILE="logs/output_$TIMESTAMP.log"
+npm start 2>&1 | tee -a "$LOGFILE"
 
 (
   sleep 300
@@ -19,3 +49,5 @@ npm run build & npm start &
 ) &
 
 wait
+
+rm $LOCKFILE
