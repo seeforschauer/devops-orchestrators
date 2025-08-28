@@ -3,6 +3,12 @@
 REPO_URL="https://github.com/veltrix-capital/test-devops-orchestrators.git"
 REPO_DIR="test-devops-orchestrators"
 
+$NODE_VERSION= ${ node version 2>&1 | egrep -o 'v(.*)'}
+if $NODE_VERSION> 18; then
+ echo "[+] pls update node..."
+ # node
+fi
+
 # Step 1: Clone or update the repository
 if [ -d "$REPO_DIR/.git" ]; then
     echo "[+] Repository exists. Pulling latest changes..."
@@ -19,6 +25,7 @@ chmod +x setup.sh start.sh
 
 # Step 3: Run setup.sh
 echo "[+] Running setup.sh..."
-./setup.sh
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+./setup.sh &> logs/setup_$TIMESTAMP.log
 
 echo "Setup is completed"
